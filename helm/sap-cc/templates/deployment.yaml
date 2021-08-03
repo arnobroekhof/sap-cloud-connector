@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "sap-cc.fullname" . }}
+  labels:
+    {{- include "sap-cc.labels" . | nindent 4 }}
+spec:
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
+  serviceName: {{ include "sap-cc.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "sap-cc.selectorLabels" . | nindent 6 }}
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ include "sap-cc.fullname" . }}
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "sap-cc.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "sap-cc.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: init-chown-data
+          image: "busybox:1.31.1"
+          imagePullPolicy:  {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsUser: 0
+          command: ["chown", "-R", "{{ .Values.securityContext.runAsUser }}:{{ .Values.securityContext.runAsGroup }}", "/opt/sap/scc-config"]
+          volumeMounts:
+          - name: {{ include "sap-cc.fullname" . }}
+            mountPath: "/opt/sap/scc-config"
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default latest }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: SAP_SCC_PORT
+              value: "8443"
+          ports:
+            - name: http
+              containerPort: 8443
+              protocol: TCP
+          volumeMounts:
+            - name: {{ include "sap-cc.fullname" . }}
+              mountPath: "/opt/sap/scc-config"
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
