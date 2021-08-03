@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: arnobroekhof/sap-cloud-connector
+  repository: ghcr.io/arnobroekhof/sap-cloud-connector
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
