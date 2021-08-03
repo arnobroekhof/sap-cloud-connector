@@ -16,5 +16,9 @@ jobs:
     - uses: actions/checkout@v2
     - name: Bump the chart version
       run: |
+        git config user.name "GitHub Actions Bot"
+        git config user.email "<>"
         docker run --rm -v "$PWD":/app treeder/bump --filename helm/sap-cc/Chart.yaml
+        git commit -m "[skip ci]"
+        git push
         wget -O - https://raw.githubusercontent.com/treeder/bump/master/gitbump.sh | bash
