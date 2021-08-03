@@ -1,0 +1,20 @@
+name: Bump Version and Tag
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Bump the chart version
+      run: |
+        docker run --rm -v "$PWD":/app treeder/bump --filename helm/sap-cc/Chart.yaml
+        wget -O - https://raw.githubusercontent.com/treeder/bump/master/gitbump.sh | bash
