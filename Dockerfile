@@ -1,7 +1,9 @@
-# syntax = docker/dockerfile:1.0-experimental
+# syntax=docker/dockerfile:1
 FROM openjdk:8-jre-buster
 
 ENV DEBIAN_FRONTEND=noninteractive
+
+ARG prometheus_jmx_exporter=https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.16.1/jmx_prometheus_javaagent-0.16.1.jar
 
 ARG sap_cc_version=sapcc-2.13.2-linux-x64.tar.gz
 
@@ -23,9 +25,12 @@ RUN wget --no-check-certificate --no-cookies --header "Cookie: eula_3_1_agreed=t
     mkdir -p /opt/sap \
     && useradd -u 1000 -m -d $SAP_CC_BASE_DIR -s /bin/bash scc \
     && tar xvfz /tmp/sapcc.tar.gz -C $SAP_CC_BASE_DIR \
+    && mkdir -p /opt/sap/metrics \
+    && wget --no-check-certificate --no-cookies -S $prometheus_jmx_exporter -O /opt/sap/metrics/jmx-javaagent.jar \
     && chown -R scc:scc /opt/sap
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY files/metrics-config.yaml /opt/sap/metrics/metrics-config.yaml
 RUN  chmod +x /usr/local/bin/docker-entrypoint.sh \
      && ln -s /usr/local/bin/docker-entrypoint.sh / # for backwards compatibility
 

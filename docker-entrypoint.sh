@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PROMETHEUS_PORT=${PROMETHEUS_PORT:-9000}
+
 function copy_init_conf() {
   set -e
   local directory=$1
@@ -66,6 +68,7 @@ JAVA_DEFAULT_OPTS="$JAVA_DEFAULT_OPTS -Dorg.apache.tomcat.util.digester.PROPERTY
 JAVA_DEFAULT_OPTS="$JAVA_DEFAULT_OPTS -Dosgi.install.area=.  -DuseNaming=osgi -Dorg.eclipse.equinox.simpleconfigurator.exclusiveInstallation=false -Dcom.sap.core.process=ljs_node"
 JAVA_DEFAULT_OPTS="$JAVA_DEFAULT_OPTS -Declipse.ignoreApp=true -Dosgi.noShutdown=true -Dosgi.framework.activeThreadType=normal -Dosgi.embedded.cleanupOnSave=true -Dosgi.usesLimit=30"
 JAVA_DEFAULT_OPTS="$JAVA_DEFAULT_OPTS -Djava.awt.headless=true -Dio.netty.recycler.maxCapacity.default=256"
+export CATALINA_OPTS="$CATALINA_OPTS -javaagent:/opt/sap/metrics/jmx-javaagent.jar=${PROMETHEUS_PORT}:/opt/sap/metrics/metrics-config.yaml"
 
 
 exec $SAP_SCC_BASE_DIR/go.sh

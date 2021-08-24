@@ -22,10 +22,10 @@ spec:
           storage: 1Gi
   template:
     metadata:
-    {{- with .Values.podAnnotations }}
+      {{- if .Values.metrics.enabled }}
       annotations:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
+          {{- toYaml .Values.metrics.annotations | nindent 8 }}
+      {{- end }}
       labels:
         {{- include "sap-cc.selectorLabels" . | nindent 8 }}
     spec:

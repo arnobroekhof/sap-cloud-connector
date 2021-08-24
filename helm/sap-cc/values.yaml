@@ -49,6 +49,12 @@ resources:
      cpu: 200m
      memory: 512Mi
 
+metrics:
+  enabled: true
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '9000'
+
 nodeSelector: {}
 
 tolerations: []
