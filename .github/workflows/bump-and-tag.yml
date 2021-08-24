@@ -28,7 +28,8 @@ jobs:
         git commit -m "bumped version" helm/sap-cc/Chart.yaml
         oldv=$(git tag --sort=-v:refname --list "v[0-9]*" | head -n 1)
         echo "old version: $oldv"
-        export NEWV=$(docker run --rm -v "$PWD":/app treeder/bump --input "$oldv" patch)
+        newv=$(docker run --rm -v "$PWD":/app treeder/bump --input "$oldv" patch)
+        echo "newversion=$newv" >> $GITHUB_ENV
 
      - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -48,10 +49,10 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.NEWV }}
+          tags: ${{ env.newversion }}
 
       - name: Commit push and tag 
         run: |
           git push
-          git tag -a ${{ env.NEWV }} -m "version ${{ env.NEWV }}"
+          git tag -a ${{ env.newversion }} -m "version ${{ env.newversion }}"
           git push --follow-tags
