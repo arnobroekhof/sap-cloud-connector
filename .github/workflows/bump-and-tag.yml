@@ -20,7 +20,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      name: Bump the chart version
+
+    - name: Bump the chart version
       run: |
         git config user.name "GitHub Actions Bot"
         git config user.email "<>"
