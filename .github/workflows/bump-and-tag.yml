@@ -19,6 +19,6 @@ jobs:
         git config user.name "GitHub Actions Bot"
         git config user.email "<>"
         docker run --rm -v "$PWD":/app treeder/bump --filename helm/sap-cc/Chart.yaml
-        git commit -m "[skip ci] bumped version" helm/sap-cc/Chart.yaml
+        git commit -m "bumped version" helm/sap-cc/Chart.yaml
         git push
         wget -O - https://raw.githubusercontent.com/treeder/bump/master/gitbump.sh | bash
